@@ -21,21 +21,32 @@
 #   http://www.captchabrotherhood.com/
 #
 
-import os, sys, time, md5, mechanize
+import os, sys, inspect, time, md5, mechanize, ConfigParser
 
 def main(argv):
   print "No CLI by now"
   sys.exit(0)
 
+api_host = 'http://www.captchabrotherhood.com/'
+
 browser = mechanize.Browser()
 browser.set_handle_equiv(True)
 browser.set_handle_robots(False)
 
-api_host = 'http://www.captchabrotherhood.com/'
-username = ''
-password = ''
-no_confirm = False
-timeout = 80
+with open(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/captcha_brotherhood.config', 'r') as config_file:
+  config = ConfigParser.ConfigParser()
+  config.readfp(config_file)
+
+username = config.get('cbh', 'username')
+password = config.get('cbh', 'password')
+try:
+  no_confirm = config.getboolean('cbh', 'no_confirm')
+except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
+  no_confirm = False
+try:
+  timeout = config.getint('cbh', 'timeout')
+except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
+  timeout = 80
 
 #
 # Returns an integer representation of user's balance in credits
